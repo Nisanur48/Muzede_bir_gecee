@@ -1,0 +1,1999 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Muzede Bir Gece</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f6efe2;
+      --paper: #fffaf1;
+      --ink: #1f2937;
+      --accent: #d96c3f;
+      --accent-deep: #8f3e1f;
+      --gold: #f3bd4b;
+      --teal: #2f8f9d;
+      --forest: #507255;
+      --danger: #d94f3d;
+      --shadow: 0 20px 40px rgba(56, 40, 23, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Nunito", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(243, 189, 75, 0.28), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(47, 143, 157, 0.22), transparent 24%),
+        linear-gradient(135deg, #f6efe2 0%, #efe3ca 100%);
+    }
+
+    .app-shell {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    .game-panel {
+      padding: 16px;
+      background: rgba(255, 250, 241, 0.78);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(143, 62, 31, 0.12);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--accent-deep);
+    }
+
+    h1,
+    h2 {
+      margin: 0;
+      font-family: "Baloo 2", cursive;
+      line-height: 1;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      color: #7f3114;
+    }
+
+    .hud {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .hud-item,
+    .progress-wrap {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: var(--paper);
+      border: 1px solid rgba(80, 114, 85, 0.14);
+    }
+
+    .hud-item span,
+    .progress-copy span {
+      display: block;
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #6b7280;
+    }
+
+    .hud-item strong,
+    .progress-copy strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 1.2rem;
+    }
+
+    .progress-wrap {
+      margin-top: 12px;
+    }
+
+    .progress-copy {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .progress-bar {
+      margin-top: 12px;
+      height: 14px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #eadcc6;
+    }
+
+    #progressFill {
+      width: 0%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--teal), var(--gold));
+      transition: width 0.25s ease;
+    }
+
+    .canvas-frame {
+      position: relative;
+      margin-top: 14px;
+      padding: 10px;
+      border-radius: 24px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.05)),
+        linear-gradient(135deg, #c66c45 0%, #87442a 100%);
+    }
+
+    canvas {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 18px;
+      background: #f8eed7;
+      box-shadow: inset 0 0 0 2px rgba(255, 250, 241, 0.45);
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 14px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      border-radius: 18px;
+      background: rgba(29, 21, 14, 0.72);
+    }
+
+    .overlay.visible {
+      display: flex;
+    }
+
+    .overlay-card {
+      width: min(560px, 100%);
+      padding: 26px;
+      border-radius: 24px;
+      background: #fff7ea;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .overlay-card p {
+      line-height: 1.6;
+    }
+
+    .hero-buttons {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 14px 18px;
+      font: inherit;
+      font-weight: 800;
+      color: #fff9ef;
+      background: linear-gradient(135deg, var(--accent), #b04d26);
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      box-shadow: 0 14px 24px rgba(176, 77, 38, 0.22);
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+    }
+
+    .message-box {
+      position: absolute;
+      left: 28px;
+      bottom: 28px;
+      max-width: 380px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(255, 248, 232, 0.95);
+      color: #5f331f;
+      font-weight: 700;
+      line-height: 1.45;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .message-box.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .gallery-replay {
+      position: absolute;
+      right: 28px;
+      bottom: 28px;
+      z-index: 3;
+    }
+
+    .gallery-replay.hidden {
+      display: none;
+    }
+
+    .album-panel {
+      margin-top: 14px;
+      padding: 18px;
+      border-radius: 22px;
+      background: var(--paper);
+      border: 1px solid rgba(217, 108, 63, 0.15);
+    }
+
+    .album-panel.hidden {
+      display: none;
+    }
+
+    .album-panel h3 {
+      margin: 0 0 12px;
+      font-family: "Baloo 2", cursive;
+      font-size: 1.8rem;
+      color: #7f3114;
+    }
+
+    .album-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .album-card {
+      padding: 16px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #fffaf1, #f7ead2);
+      border: 1px solid rgba(80, 114, 85, 0.12);
+    }
+
+    .album-card strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #6e371f;
+    }
+
+    .mobile-controls {
+      display: none;
+      margin-top: 16px;
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .dpad {
+      display: grid;
+      grid-template-columns: repeat(3, 64px);
+      grid-template-rows: repeat(2, 58px);
+      gap: 8px;
+    }
+
+    .dpad-spacer {
+      pointer-events: none;
+    }
+
+    .mobile-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      border-radius: 18px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      user-select: none;
+    }
+
+    .mobile-btn:active,
+    .mobile-btn.is-active {
+      transform: scale(0.96);
+      box-shadow: 0 8px 16px rgba(176, 77, 38, 0.18);
+    }
+
+    .action-cluster {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      flex: 1;
+    }
+
+    .action-cluster .mobile-btn {
+      min-height: 58px;
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 1100px) {
+      .app-shell {
+        padding: 14px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .app-shell {
+        padding: 12px;
+      }
+
+      .game-panel {
+        border-radius: 18px;
+      }
+
+      .hud {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .mobile-controls {
+        display: flex;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <section class="game-panel">
+      <div class="hud">
+        <div class="hud-item"><span>Karakter</span><strong id="heroName">Secilmedi</strong></div>
+        <div class="hud-item"><span>Asama</span><strong id="stageLabel">Hazirlik</strong></div>
+        <div class="hud-item"><span>Puan</span><strong id="scoreLabel">0</strong></div>
+        <div class="hud-item"><span>Sure</span><strong id="timerLabel">90</strong></div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-copy">
+          <span id="progressLabel">Yangin Ilerlemesi</span>
+          <strong id="progressText">%0</strong>
+        </div>
+        <div class="progress-bar">
+          <div id="progressFill"></div>
+        </div>
+      </div>
+
+      <div class="canvas-frame">
+        <canvas id="gameCanvas" width="960" height="540" tabindex="0"></canvas>
+
+        <div id="startOverlay" class="overlay visible">
+          <div class="overlay-card">
+            <p class="eyebrow">Görev Başlıyor</p>
+            <h2>Fırtına müzeyi vurdu, içeride her şey tehlikede.</h2>
+            <p>
+              Aras ya da Selin ile hemen harekete geç. Yangını kontrol altına al,
+              değerli eserleri koru ve müzeyi güvenli bölgeye taşıyarak kurtar.
+            </p>
+
+            <div class="hero-buttons">
+              <button type="button" data-hero="erkek">Aras</button>
+              <button type="button" data-hero="kiz">Selin</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="messageBox" class="message-box"></div>
+        <button id="galleryReplayButton" type="button" class="gallery-replay hidden">Tekrar Oyna</button>
+      </div>
+
+      <div id="mobileControls" class="mobile-controls">
+        <div class="dpad">
+          <div class="dpad-spacer"></div>
+          <button type="button" class="mobile-btn" data-control="up">▲</button>
+          <div class="dpad-spacer"></div>
+          <button type="button" class="mobile-btn" data-control="left">◀</button>
+          <button type="button" class="mobile-btn" data-control="down">▼</button>
+          <button type="button" class="mobile-btn" data-control="right">▶</button>
+        </div>
+        <div class="action-cluster">
+          <button type="button" class="mobile-btn" data-control="action-e">Etkilesim</button>
+          <button type="button" class="mobile-btn" data-control="action-space">Sondur</button>
+          <button type="button" class="mobile-btn" data-control="action-r">Yenile</button>
+        </div>
+      </div>
+
+      <div id="albumPanel" class="album-panel hidden"></div>
+    </section>
+  </main>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const LOGICAL_WIDTH = 960;
+    const LOGICAL_HEIGHT = 540;
+    const DPR = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
+
+    canvas.width = LOGICAL_WIDTH * DPR;
+    canvas.height = LOGICAL_HEIGHT * DPR;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+
+    const heroName = document.getElementById("heroName");
+    const stageLabel = document.getElementById("stageLabel");
+    const scoreLabel = document.getElementById("scoreLabel");
+    const timerLabel = document.getElementById("timerLabel");
+    const progressLabel = document.getElementById("progressLabel");
+    const progressText = document.getElementById("progressText");
+    const progressFill = document.getElementById("progressFill");
+    const startOverlay = document.getElementById("startOverlay");
+    const messageBox = document.getElementById("messageBox");
+    const albumPanel = document.getElementById("albumPanel");
+    const mobileControls = document.getElementById("mobileControls");
+    const galleryReplayButton = document.getElementById("galleryReplayButton");
+
+    const WIDTH = LOGICAL_WIDTH;
+    const HEIGHT = LOGICAL_HEIGHT;
+    const SAFE_ZONE = { x: 40, y: 410, w: 165, h: 95 };
+    const PLAY_BOUNDS = { x: 20, y: 20, w: WIDTH - 40, h: HEIGHT - 40 };
+    const backgroundSprites = {
+      level1: createImageSprite("muzearkaplan.png"),
+      level2: createImageSprite("muze2.png"),
+      level3: createImageSprite("sonmuze.png")
+    };
+    const rockSprite = createImageSprite("taslar.png");
+    const safehouseSprite = createImageSprite("safehouse.png");
+    const artifactSprites = {
+      adam: createImageSprite("adam.png"),
+      cingene: createImageSprite("cingene.png"),
+      hitit: createImageSprite("hitit.png"),
+      karun: createImageSprite("karun.png"),
+      lahit: createImageSprite("lahit.png"),
+      kades: createImageSprite("kades.png"),
+      sagalassos: createImageSprite("sagalassos.png"),
+      sidemara: createImageSprite("sidemara.png"),
+      siyerinebi: createImageSprite("siyerinebi.png"),
+      urartu: createImageSprite("urartu.png")
+    };
+    const heroSprites = {
+      erkek: createImageSprite("erkek.png"),
+      kiz: createImageSprite("kiz.png")
+    };
+    const thunderAudio = new Audio("thunder.mp3");
+    thunderAudio.loop = true;
+    thunderAudio.volume = 0.2;
+    thunderAudio.preload = "auto";
+    const gameplayAudio = new Audio("oynanis_music.mp3");
+    gameplayAudio.loop = true;
+    gameplayAudio.volume = 0.55;
+    gameplayAudio.preload = "auto";
+    const failAudio = new Audio("fail_trumpet.mp3");
+    failAudio.volume = 0.7;
+    failAudio.preload = "auto";
+    const winAudio = new Audio("win.mp3");
+    winAudio.volume = 0.82;
+    winAudio.preload = "auto";
+    const lastMusicAudio = new Audio("lastmusic.mp3");
+    lastMusicAudio.loop = true;
+    lastMusicAudio.volume = 0.5;
+    lastMusicAudio.preload = "auto";
+    let ambientFadeFrame = null;
+
+    const heroData = {
+      erkek: {
+        name: "Aras",
+        color: "#1f7a8c",
+        speed: 3.6,
+        sprite: heroSprites.erkek
+      },
+      kiz: {
+        name: "Selin",
+        color: "#8a4fff",
+        speed: 3.6,
+        sprite: heroSprites.kiz
+      }
+    };
+
+    const level1Artifacts = [
+      {
+        id: "altin_elbiseli_adam",
+        name: "Altın Elbiseli Adam Zırhı",
+        description: "Saka dönemine ait görkemli bir zırh örneğidir.",
+        sprite: artifactSprites.adam
+      },
+      {
+        id: "cingene_kizi",
+        name: "Çingene Kızı Mozaiği",
+        description: "Gaziantep Zeugma'dan çıkan en bilinen mozaik eserlerden biridir.",
+        sprite: artifactSprites.cingene
+      },
+      {
+        id: "gunes_kursu",
+        name: "Hitit Güneş Kursu",
+        description: "Anadolu uygarlıklarının simgelerinden biri olarak bilinir.",
+        sprite: artifactSprites.hitit
+      },
+      {
+        id: "kanatli_deniz_ati_brosu",
+        name: "Karun Hazinesi - Kanatlı Deniz Atı Broşu",
+        description: "Lidya dönemine ait çok değerli bir takı eseridir.",
+        sprite: artifactSprites.karun
+      },
+      {
+        id: "iskender_lahdi",
+        name: "İskender Lahdi",
+        description: "Sidon Krallık Nekropolü'nden çıkan ünlü lahit eseridir.",
+        sprite: artifactSprites.lahit
+      }
+    ];
+
+    const level2Artifacts = [
+      {
+        id: "kades_baris_antlasmasi",
+        name: "Kadeş Barış Antlaşması Tableti",
+        description: "Hititler ile Mısırlılar arasında yapılan ünlü barış antlaşmasının kil tablet kopyasıdır.",
+        sprite: artifactSprites.kades
+      },
+      {
+        id: "sagalassos_antoninler",
+        name: "Sagalassos Antoninler Çeşmesi Heykelleri",
+        description: "Burdur Sagalassos Antik Kenti'ndeki Antoninler Çeşmesi'ne ait heykel eserleridir.",
+        sprite: artifactSprites.sagalassos
+      },
+      {
+        id: "sidemara_lahdi",
+        name: "Sidemara Lahdi",
+        description: "Roma döneminin gösterişli bezemeleriyle tanınan büyük bir taş lahittir.",
+        sprite: artifactSprites.sidemara
+      },
+      {
+        id: "siyer_i_nebi",
+        name: "Siyer-i Nebi El Yazmaları",
+        description: "Osmanlı döneminde hazırlanmış, Hz. Muhammed'in hayatını anlatan resimli yazma eserlerdir.",
+        sprite: artifactSprites.siyerinebi
+      },
+      {
+        id: "urartu_kemerleri",
+        name: "Urartu Kemerleri",
+        description: "Urartu uygarlığının metal işçiliğini yansıtan bezemeli kemer eserleridir.",
+        sprite: artifactSprites.urartu
+      }
+    ];
+
+    const level3Artifacts = [
+      ...level1Artifacts,
+      ...level2Artifacts
+    ];
+
+    const artifactSetsByLevel = [level1Artifacts, level2Artifacts, level3Artifacts];
+
+    const levelConfigs = [
+      {
+        id: 1,
+        mode: "rescue",
+        backgroundKey: "level1",
+        timeLimit: 90,
+        extinguishers: [
+          { x: 188, y: 365 },
+          { x: 315, y: 295 },
+          { x: 670, y: 292 },
+          { x: 804, y: 366 }
+        ],
+        fires: [
+          { x: 560, y: 116, size: 26 },
+          { x: 643, y: 110, size: 28 },
+          { x: 706, y: 123, size: 24 },
+          { x: 762, y: 132, size: 22 }
+        ],
+        artifacts: [
+          { x: 128, y: 226, displaySize: 136 },
+          { x: 274, y: 322 },
+          { x: 498, y: 270 },
+          { x: 626, y: 268 },
+          { x: 832, y: 322 }
+        ],
+        smoke: {
+          enabled: true,
+          anchors: [
+            { x: 214, y: 360 },
+            { x: 352, y: 312 },
+            { x: 548, y: 256 },
+            { x: 686, y: 246 },
+            { x: 812, y: 320 }
+          ],
+          radius: 68,
+          activeDuration: 10,
+          pauseDuration: 5
+        }
+      },
+      {
+        id: 2,
+        mode: "rescue",
+        backgroundKey: "level2",
+        timeLimit: 90,
+        extinguishers: [
+          { x: 140, y: 430 },
+          { x: 282, y: 446 },
+          { x: 470, y: 452 },
+          { x: 706, y: 436 },
+          { x: 866, y: 412 }
+        ],
+        fires: [
+          { x: 360, y: 304, size: 26 },
+          { x: 438, y: 288, size: 28 },
+          { x: 528, y: 284, size: 30 },
+          { x: 624, y: 290, size: 27 },
+          { x: 804, y: 314, size: 24 }
+        ],
+        artifacts: [
+          { x: 116, y: 390 },
+          { x: 286, y: 414 },
+          { x: 446, y: 380 },
+          { x: 688, y: 344 },
+          { x: 850, y: 390 }
+        ],
+        smoke: {
+          enabled: true,
+          anchors: [
+            { x: 230, y: 392 },
+            { x: 362, y: 370 },
+            { x: 512, y: 402 },
+            { x: 640, y: 360 },
+            { x: 772, y: 390 }
+          ],
+          radius: 72,
+          activeDuration: 10,
+          pauseDuration: 5
+        }
+      },
+      {
+        id: 3,
+        mode: "gallery",
+        backgroundKey: "level3",
+        timeLimit: null,
+        extinguishers: [],
+        fires: [],
+        artifacts: [
+          { x: 117, y: 314, displaySize: 66 },
+          { x: 198, y: 314, displaySize: 60 },
+          { x: 280, y: 314, displaySize: 60 },
+          { x: 363, y: 314, displaySize: 60 },
+          { x: 444, y: 312, displaySize: 60 },
+          { x: 529, y: 314, displaySize: 60 },
+          { x: 611, y: 314, displaySize: 60 },
+          { x: 694, y: 314, displaySize: 60 },
+          { x: 780, y: 314, displaySize: 60 },
+          { x: 865, y: 314, displaySize: 60 }
+        ],
+        smoke: {
+          enabled: false,
+          anchors: [],
+          radius: 0,
+          activeDuration: 0,
+          pauseDuration: 0
+        }
+      }
+    ];
+
+    let keys = {};
+    let lastTime = 0;
+
+    const startOverlayTemplate = `
+      <div class="overlay-card">
+        <p class="eyebrow">Görev Başlıyor</p>
+        <h2>Fırtına müzeyi vurdu, içeride her şey tehlikede.</h2>
+        <p>
+          Aras ya da Selin ile hemen harekete geç. Yangını kontrol altına al,
+          değerli eserleri koru ve müzeyi güvenli bölgeye taşıyarak kurtar.
+        </p>
+
+        <div class="hero-buttons">
+          <button type="button" data-hero="erkek">Aras</button>
+          <button type="button" data-hero="kiz">Selin</button>
+        </div>
+      </div>
+    `;
+
+    function createImageSprite(src) {
+      const img = new Image();
+      img.trimRect = null;
+      img.src = src;
+      img.addEventListener("load", () => {
+        img.trimRect = getTrimRect(img);
+      });
+      return img;
+    }
+
+    function getTrimRect(img) {
+      const tempCanvas = document.createElement("canvas");
+      tempCanvas.width = img.naturalWidth;
+      tempCanvas.height = img.naturalHeight;
+      const tempCtx = tempCanvas.getContext("2d", { willReadFrequently: true });
+      tempCtx.drawImage(img, 0, 0);
+      const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+      const { data } = imageData;
+      const width = tempCanvas.width;
+      const height = tempCanvas.height;
+      let minX = width;
+      let minY = height;
+      let maxX = -1;
+      let maxY = -1;
+
+      for (let y = 0; y < height; y += 1) {
+        for (let x = 0; x < width; x += 1) {
+          const alpha = data[(y * width + x) * 4 + 3];
+          if (alpha > 12) {
+            if (x < minX) minX = x;
+            if (y < minY) minY = y;
+            if (x > maxX) maxX = x;
+            if (y > maxY) maxY = y;
+          }
+        }
+      }
+
+      if (maxX === -1 || maxY === -1) {
+        return { x: 0, y: 0, w: img.naturalWidth, h: img.naturalHeight };
+      }
+
+      return {
+        x: minX,
+        y: minY,
+        w: maxX - minX + 1,
+        h: maxY - minY + 1
+      };
+    }
+
+    function createGameState(options = {}) {
+      const {
+        levelIndex = 0,
+        heroKey = null,
+        score = 0,
+        rescuedArtifacts = []
+      } = options;
+
+      const levelConfig = levelConfigs[levelIndex];
+      const artifactSet = artifactSetsByLevel[levelIndex] || level1Artifacts;
+      const hero = heroKey ? { ...heroData[heroKey], key: heroKey } : null;
+      const smokeCycle = createSmokeCycle(levelConfig.smoke);
+      const smokeZones = buildSmokeZones(levelConfig.smoke, smokeCycle);
+
+      return {
+        screen: hero ? (levelConfig.mode === "gallery" ? "gallery" : "stage1") : "start",
+        hero,
+        heroKey,
+        levelIndex,
+        levelNumber: levelConfig.id,
+        levelConfig,
+        player: {
+          x: SAFE_ZONE.x + SAFE_ZONE.w / 2,
+          y: SAFE_ZONE.y + SAFE_ZONE.h / 2 + 10,
+          size: 16,
+          speed: hero ? hero.speed : 0,
+          color: hero ? hero.color : "#000",
+          carrying: null,
+          facing: 1,
+          moving: false,
+          walkCycle: 0
+        },
+        stage: levelConfig.mode === "gallery" ? 3 : 1,
+        score,
+        timeLeft: levelConfig.timeLimit ?? 0,
+        stunTimer: 0,
+        extinguishers: levelConfig.extinguishers.map((extinguisher) => ({
+          ...extinguisher,
+          collected: false
+        })),
+        ammo: 0,
+        fires: levelConfig.fires.map((fire, index) => ({
+          ...fire,
+          id: `level_${levelConfig.id}_fire_${index + 1}`,
+          active: true
+        })),
+        smokeCycle,
+        smokeZones,
+        artifacts: artifactSet.map((artifact, index) => ({
+          ...artifact,
+          x: levelConfig.artifacts[index].x,
+          y: levelConfig.artifacts[index].y,
+          displaySize: levelConfig.artifacts[index].displaySize || (levelConfig.id === 1 ? 56 : 62),
+          carrySize: 40,
+          inspectRadius: levelConfig.mode === "gallery" ? 48 : 42,
+          collected: false,
+          delivered: false,
+          level: levelConfig.id
+        })),
+        rescuedArtifacts: [...rescuedArtifacts],
+        fallingRocks: [],
+        rockSpawnTimers: [0, 0.5],
+        rockLastLanes: [null, null],
+        message: "",
+        messageTimer: 0,
+        revealArtifactTimer: 0,
+        visualClock: 0,
+        lightningTimer: 3.5,
+        lightningFlash: 0
+      };
+    }
+
+    function createSmokeCycle(smokeConfig) {
+      if (!smokeConfig?.enabled || smokeConfig.anchors.length === 0) {
+        return {
+          enabled: false,
+          active: false,
+          timer: 0,
+          currentIndex: -1,
+          activeDuration: 0,
+          pauseDuration: 0
+        };
+      }
+
+      const firstIndex = Math.floor(Math.random() * smokeConfig.anchors.length);
+
+      return {
+        enabled: true,
+        active: true,
+        timer: smokeConfig.activeDuration,
+        currentIndex: firstIndex,
+        activeDuration: smokeConfig.activeDuration,
+        pauseDuration: smokeConfig.pauseDuration
+      };
+    }
+
+    function buildSmokeZones(smokeConfig, smokeCycle) {
+      if (!smokeCycle.enabled || !smokeCycle.active) {
+        return [];
+      }
+
+      const anchor = smokeConfig.anchors[smokeCycle.currentIndex];
+      return [{ x: anchor.x, y: anchor.y, r: smokeConfig.radius }];
+    }
+
+    let game = createGameState();
+
+    function resetGame() {
+      stopAmbientAudio();
+      stopFailAudio();
+      stopWinAudio();
+      stopFinalMusic();
+      game = createGameState();
+      startOverlay.innerHTML = startOverlayTemplate;
+      heroName.textContent = "Secilmedi";
+      albumPanel.classList.add("hidden");
+      albumPanel.innerHTML = "";
+      showOverlay(startOverlay, true);
+      bindStartButtons();
+      updateHud();
+      updateGalleryReplayVisibility();
+    }
+
+    function startGame(heroKey) {
+      stopFailAudio();
+      stopWinAudio();
+      stopFinalMusic();
+      game = createGameState({ levelIndex: 0, heroKey, score: 0, rescuedArtifacts: [] });
+      movePlayerToSafeZone();
+      heroName.textContent = game.hero.name;
+      stageLabel.textContent = "1. Bolum / Yangin";
+      showOverlay(startOverlay, false);
+      startAmbientAudio({ restart: true, fadeIn: true });
+      focusGameSurface();
+      updateHud();
+      updateGalleryReplayVisibility();
+      showMessage(`${game.hero.name} goreve hazir. Once bir yangin tupu al, sonra alevin yaninda space ile yangini sondur.`);
+    }
+
+    function startAmbientAudio(options = {}) {
+      const { restart = false, fadeIn = false } = options;
+
+      if (!restart && !thunderAudio.paused && !gameplayAudio.paused) {
+        return;
+      }
+
+      if (ambientFadeFrame) {
+        cancelAnimationFrame(ambientFadeFrame);
+        ambientFadeFrame = null;
+      }
+
+      if (restart) {
+        thunderAudio.currentTime = 0;
+        gameplayAudio.currentTime = 0;
+      }
+
+      const thunderTarget = 0.2;
+      const gameplayTarget = 0.55;
+      thunderAudio.volume = fadeIn ? 0 : thunderTarget;
+      gameplayAudio.volume = fadeIn ? 0 : gameplayTarget;
+
+      const playThunder = thunderAudio.play();
+      if (playThunder && typeof playThunder.catch === "function") {
+        playThunder.catch(() => {});
+      }
+
+      const playGameplay = gameplayAudio.play();
+      if (playGameplay && typeof playGameplay.catch === "function") {
+        playGameplay.catch(() => {});
+      }
+
+      if (!fadeIn) {
+        return;
+      }
+
+      const fadeDuration = 2200;
+      const fadeStart = performance.now();
+
+      const fadeStep = (now) => {
+        const progress = Math.min(1, (now - fadeStart) / fadeDuration);
+        thunderAudio.volume = thunderTarget * progress;
+        gameplayAudio.volume = gameplayTarget * progress;
+
+        if (progress < 1) {
+          ambientFadeFrame = requestAnimationFrame(fadeStep);
+        } else {
+          ambientFadeFrame = null;
+        }
+      };
+
+      ambientFadeFrame = requestAnimationFrame(fadeStep);
+    }
+
+    function stopAmbientAudio() {
+      if (ambientFadeFrame) {
+        cancelAnimationFrame(ambientFadeFrame);
+        ambientFadeFrame = null;
+      }
+      thunderAudio.pause();
+      thunderAudio.currentTime = 0;
+      thunderAudio.volume = 0.2;
+      gameplayAudio.pause();
+      gameplayAudio.currentTime = 0;
+      gameplayAudio.volume = 0.55;
+    }
+
+    function playFailAudio() {
+      failAudio.pause();
+      failAudio.currentTime = 0;
+      const playAttempt = failAudio.play();
+      if (playAttempt && typeof playAttempt.catch === "function") {
+        playAttempt.catch(() => {});
+      }
+    }
+
+    function stopFailAudio() {
+      failAudio.pause();
+      failAudio.currentTime = 0;
+    }
+
+    function playWinAudio() {
+      winAudio.pause();
+      winAudio.currentTime = 0;
+      const playAttempt = winAudio.play();
+      if (playAttempt && typeof playAttempt.catch === "function") {
+        playAttempt.catch(() => {});
+      }
+    }
+
+    function stopWinAudio() {
+      winAudio.pause();
+      winAudio.currentTime = 0;
+    }
+
+    function startFinalMusic() {
+      lastMusicAudio.currentTime = 0;
+      const playAttempt = lastMusicAudio.play();
+      if (playAttempt && typeof playAttempt.catch === "function") {
+        playAttempt.catch(() => {});
+      }
+    }
+
+    function stopFinalMusic() {
+      lastMusicAudio.pause();
+      lastMusicAudio.currentTime = 0;
+    }
+
+    function movePlayerToSafeZone() {
+      game.player.x = SAFE_ZONE.x + SAFE_ZONE.w / 2;
+      game.player.y = SAFE_ZONE.y + SAFE_ZONE.h / 2 + 10;
+    }
+
+    function movePlayerToGalleryStart() {
+      game.player.x = 70;
+      game.player.y = 472;
+    }
+
+    function focusGameSurface() {
+      if (document.activeElement && typeof document.activeElement.blur === "function") {
+        document.activeElement.blur();
+      }
+      if (typeof canvas.focus === "function") {
+        canvas.focus();
+      }
+    }
+
+    function updateGalleryReplayVisibility() {
+      const visible = game.levelConfig?.mode === "gallery" && game.screen === "gallery";
+      galleryReplayButton.classList.toggle("hidden", !visible);
+    }
+
+    function startNextLevel() {
+      stopFailAudio();
+      stopWinAudio();
+      const nextLevelIndex = game.levelIndex + 1;
+      if (nextLevelIndex >= levelConfigs.length || !game.heroKey) {
+        finishGame(true);
+        return;
+      }
+
+      game = createGameState({
+        levelIndex: nextLevelIndex,
+        heroKey: game.heroKey,
+        score: game.score,
+        rescuedArtifacts: game.rescuedArtifacts
+      });
+
+      if (game.levelConfig.mode === "gallery") {
+        stopAmbientAudio();
+        startFinalMusic();
+        movePlayerToGalleryStart();
+      } else {
+        movePlayerToSafeZone();
+      }
+      heroName.textContent = game.hero.name;
+      showOverlay(startOverlay, false);
+      focusGameSurface();
+      updateHud();
+      updateGalleryReplayVisibility();
+      if (game.levelConfig.mode === "gallery") {
+        showMessage("Son müzedesin. Kurtardığın 10 eseri incelemek için yanına gidip E tuşuna bas.");
+      } else {
+        showMessage(`${game.levelNumber}. bolum basladi. Bu kez 5 yangin ve hareketi yavaslatan duman alanlari var.`);
+      }
+    }
+
+    function showOverlay(element, visible) {
+      element.classList.toggle("visible", visible);
+    }
+
+    function showMessage(text, duration = 3.2) {
+      game.message = text;
+      game.messageTimer = duration;
+      messageBox.textContent = text;
+      messageBox.classList.add("visible");
+    }
+
+    function hideMessage() {
+      messageBox.classList.remove("visible");
+    }
+
+    function rectsOverlap(a, b) {
+      return (
+        a.x < b.x + b.w &&
+        a.x + a.w > b.x &&
+        a.y < b.y + b.h &&
+        a.y + a.h > b.y
+      );
+    }
+
+    function fillRoundedRect(x, y, w, h, radius) {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + w - radius, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+      ctx.lineTo(x + w, y + h - radius);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+      ctx.lineTo(x + radius, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function playerRectAt(x, y) {
+      return {
+        x: x - game.player.size,
+        y: y - game.player.size,
+        w: game.player.size * 2,
+        h: game.player.size * 2
+      };
+    }
+
+    function collidesWithMuseum(candidateRect) {
+      const boundary = {
+        x: PLAY_BOUNDS.x,
+        y: PLAY_BOUNDS.y,
+        w: PLAY_BOUNDS.w,
+        h: PLAY_BOUNDS.h
+      };
+
+      if (
+        candidateRect.x < boundary.x ||
+        candidateRect.y < boundary.y ||
+        candidateRect.x + candidateRect.w > boundary.x + boundary.w ||
+        candidateRect.y + candidateRect.h > boundary.y + boundary.h
+      ) {
+        return true;
+      }
+
+      return false;
+    }
+
+    function movePlayer(dt) {
+      if (!game.hero || (game.screen !== "stage1" && game.screen !== "stage2" && game.screen !== "gallery")) {
+        return;
+      }
+
+      if (game.stunTimer > 0) {
+        game.player.moving = false;
+        return;
+      }
+
+      const moveX = (keys["ArrowRight"] || keys["d"] ? 1 : 0) - (keys["ArrowLeft"] || keys["a"] ? 1 : 0);
+      const moveY = (keys["ArrowDown"] || keys["s"] ? 1 : 0) - (keys["ArrowUp"] || keys["w"] ? 1 : 0);
+
+      if (!moveX && !moveY) {
+        game.player.moving = false;
+        return;
+      }
+
+      const length = Math.hypot(moveX, moveY) || 1;
+      let speed = game.player.speed;
+      if (isPlayerInSmoke()) {
+        speed *= 0.5;
+      }
+
+      const stepX = (moveX / length) * speed * dt * 60;
+      const stepY = (moveY / length) * speed * dt * 60;
+      game.player.moving = true;
+      game.player.walkCycle += dt * 12;
+      if (moveX !== 0) {
+        game.player.facing = moveX < 0 ? -1 : 1;
+      }
+
+      const nextXRect = playerRectAt(game.player.x + stepX, game.player.y);
+      if (!collidesWithMuseum(nextXRect)) {
+        game.player.x += stepX;
+      }
+
+      const nextYRect = playerRectAt(game.player.x, game.player.y + stepY);
+      if (!collidesWithMuseum(nextYRect)) {
+        game.player.y += stepY;
+      }
+    }
+
+    function distance(a, b) {
+      return Math.hypot(a.x - b.x, a.y - b.y);
+    }
+
+    function nearestFire() {
+      return game.fires.find((fire) => fire.active && distance(game.player, fire) < 52);
+    }
+
+    function nearestArtifact() {
+      return game.artifacts.find((artifact) => !artifact.delivered && !artifact.collected && distance(game.player, artifact) < 42);
+    }
+
+    function nearestGalleryArtifact() {
+      return game.artifacts.find((artifact) => distance(game.player, artifact) < (artifact.inspectRadius || 48));
+    }
+
+    function isPlayerInSmoke() {
+      return game.smokeZones.some((zone) => distance(game.player, zone) < zone.r);
+    }
+
+    function spawnFallingRock(streamIndex) {
+      const availableLanes = [110, 235, 360, 485, 610, 735, 850];
+      let spawnX = availableLanes[Math.floor(Math.random() * availableLanes.length)];
+
+      const blockedLanes = new Set();
+      const ownLastLane = game.rockLastLanes[streamIndex];
+      if (ownLastLane !== null) {
+        blockedLanes.add(ownLastLane);
+      }
+
+      for (const rock of game.fallingRocks) {
+        blockedLanes.add(rock.x);
+      }
+
+      const filtered = availableLanes.filter((lane) => {
+        for (const blockedLane of blockedLanes) {
+          if (Math.abs(lane - blockedLane) < 90) {
+            return false;
+          }
+        }
+        return true;
+      });
+
+      if (filtered.length > 0) {
+        spawnX = filtered[Math.floor(Math.random() * filtered.length)];
+      }
+
+      game.rockLastLanes[streamIndex] = spawnX;
+
+      game.fallingRocks.push({
+        x: spawnX,
+        y: -54,
+        size: 122,
+        speed: game.player.speed * 1.22,
+        hitPlayer: false,
+        rotation: (Math.random() * 0.3) - 0.15,
+        streamIndex
+      });
+    }
+
+    function drawSpriteCentered(sprite, x, y, targetSize) {
+      if (!sprite || !sprite.complete || sprite.naturalWidth <= 0) {
+        return false;
+      }
+
+      const trim = sprite.trimRect || {
+        x: 0,
+        y: 0,
+        w: sprite.naturalWidth,
+        h: sprite.naturalHeight
+      };
+      const aspect = trim.w / trim.h;
+      const drawH = targetSize;
+      const drawW = drawH * aspect;
+
+      ctx.drawImage(
+        sprite,
+        trim.x,
+        trim.y,
+        trim.w,
+        trim.h,
+        x - drawW / 2,
+        y - drawH / 2,
+        drawW,
+        drawH
+      );
+
+      return true;
+    }
+
+    function updateFallingRocks(dt) {
+      if (game.screen !== "stage1" && game.screen !== "stage2") {
+        return;
+      }
+
+      for (let i = 0; i < game.rockSpawnTimers.length; i += 1) {
+        game.rockSpawnTimers[i] = Math.max(0, game.rockSpawnTimers[i] - dt);
+        if (game.rockSpawnTimers[i] === 0 && game.fallingRocks.length < 2) {
+          spawnFallingRock(i);
+          game.rockSpawnTimers[i] = 1;
+        }
+      }
+
+      const playerRect = playerRectAt(game.player.x, game.player.y);
+
+      game.fallingRocks = game.fallingRocks.filter((rock) => {
+        rock.y += rock.speed * dt * 60;
+
+        const rockRect = {
+          x: rock.x - rock.size / 2,
+          y: rock.y - rock.size / 2,
+          w: rock.size,
+          h: rock.size
+        };
+
+        if (!rock.hitPlayer && rectsOverlap(playerRect, rockRect)) {
+          rock.hitPlayer = true;
+          game.stunTimer = 3;
+          showMessage("Tavandan kopan taş sana çarptı. 3 saniye sersemlendin.");
+        }
+
+        if (rock.y - rock.size > HEIGHT + 20) {
+          return false;
+        }
+
+        return true;
+      });
+    }
+
+    function isInSafeZone() {
+      return (
+        game.player.x > SAFE_ZONE.x &&
+        game.player.x < SAFE_ZONE.x + SAFE_ZONE.w &&
+        game.player.y > SAFE_ZONE.y &&
+        game.player.y < SAFE_ZONE.y + SAFE_ZONE.h
+      );
+    }
+
+    function handleInteraction() {
+      if (game.screen !== "stage1" && game.screen !== "stage2" && game.screen !== "gallery") {
+        return;
+      }
+
+      if (game.screen === "gallery") {
+        const artifact = nearestGalleryArtifact();
+        if (artifact) {
+          showMessage(`${artifact.name}: ${artifact.description}`, 5.6);
+        }
+        return;
+      }
+
+      if (game.screen === "stage2") {
+        const artifact = nearestArtifact();
+        if (artifact && !game.player.carrying) {
+          artifact.collected = true;
+          game.player.carrying = artifact;
+          showMessage(`${artifact.name} guvenli bolgeye tasinmali.`);
+          return;
+        }
+
+        if (game.player.carrying && isInSafeZone()) {
+          deliverArtifact();
+        }
+      }
+    }
+
+    function extinguishFire() {
+      if (game.screen !== "stage1") {
+        return;
+      }
+
+      const fire = nearestFire();
+      if (!fire) {
+        showMessage("Alevlere biraz daha yaklas.");
+        return;
+      }
+
+      if (game.ammo <= 0) {
+        showMessage("Yangin tupu toplamalisin.");
+        return;
+      }
+
+      fire.active = false;
+      game.ammo = 0;
+      game.score += 10;
+      showMessage("Alev sonduruldu. Siradaki yangin tupu icin ilerle.");
+
+      if (game.fires.every((item) => !item.active)) {
+        advanceToStageTwo();
+      }
+    }
+
+    function collectNearbyExtinguishers() {
+      if (game.screen !== "stage1" || game.ammo > 0) {
+        return;
+      }
+
+      for (const extinguisher of game.extinguishers) {
+        if (!extinguisher.collected && distance(game.player, extinguisher) < 28) {
+          extinguisher.collected = true;
+          game.ammo = 1;
+          game.score += 5;
+          showMessage("Yangin tupu alindi. Simdi bir alevin yanina gidip space ile yangini sondur.");
+          break;
+        }
+      }
+    }
+
+    function deliverArtifact() {
+      const artifact = game.player.carrying;
+      if (!artifact) {
+        return;
+      }
+
+      artifact.delivered = true;
+      game.player.carrying = null;
+      game.rescuedArtifacts.push(artifact);
+      game.score += 15;
+      showMessage(`${artifact.name} kurtarildi ve dijital muzeye eklendi.`);
+
+      if (game.artifacts.every((item) => item.delivered)) {
+        completeLevel();
+      }
+    }
+
+    function advanceToStageTwo() {
+      game.stage = 2;
+      game.screen = "stage2";
+      game.ammo = 0;
+      stageLabel.textContent = "2. Asama";
+      movePlayerToSafeZone();
+      showMessage("Tum alevler sonduruldu. Simdi eserleri guvenli bolgeye tasi.");
+    }
+
+    function completeLevel() {
+      const timeBonus = Math.max(0, Math.ceil(game.timeLeft)) * 4;
+      game.score += timeBonus;
+
+      if (game.levelIndex < levelConfigs.length - 1) {
+        playWinAudio();
+        game.screen = "levelComplete";
+        showOverlay(startOverlay, true);
+        const overlayCard = startOverlay.querySelector(".overlay-card");
+        const nextLevelMode = levelConfigs[game.levelIndex + 1]?.mode;
+        const nextButtonLabel = nextLevelMode === "gallery" ? "Son Müze" : "Sonraki Bolum";
+        const nextDescription = nextLevelMode === "gallery"
+          ? "Kalan süreden " + timeBonus + " bonus puan kazandın. Şimdi kurtardığın tüm eserlerin sergilendiği son müzeye geçeceksin."
+          : "Kalan süreden " + timeBonus + " bonus puan kazandın. " + (game.levelNumber + 1) + ". bölüme aynı karakterle devam edeceksin.";
+        overlayCard.innerHTML = `
+          <p class="eyebrow">${game.levelNumber}. Bolum Tamamlandi</p>
+          <h2>Puanin: ${game.score}</h2>
+          <p>${nextDescription}</p>
+          <div class="hero-buttons">
+            <button type="button" id="nextLevelBtn">${nextButtonLabel}</button>
+          </div>
+        `;
+        document.getElementById("nextLevelBtn").addEventListener("click", startNextLevel);
+        return;
+      }
+
+      finishGame(true);
+    }
+
+    function finishGame(won) {
+      game.screen = won ? "victory" : "defeat";
+      stageLabel.textContent = won ? "Basarili" : "Tekrar Dene";
+      stopAmbientAudio();
+      stopFinalMusic();
+      if (!won) {
+        stopWinAudio();
+        playFailAudio();
+      } else {
+        stopFailAudio();
+        playWinAudio();
+      }
+      showOverlay(startOverlay, true);
+      updateGalleryReplayVisibility();
+
+      const overlayCard = startOverlay.querySelector(".overlay-card");
+      if (won) {
+        overlayCard.innerHTML = `
+          <p class="eyebrow">Gorev Tamamlandi</p>
+          <h2>Dijital Muze Hazir!</h2>
+          <p>Puanin <strong>${game.score}</strong>. Ortak mirasi koruyarak eserleri gelecege tasidin.</p>
+          <div class="hero-buttons">
+            <button type="button" id="restartWin">Tekrar Oyna</button>
+          </div>
+        `;
+        document.getElementById("restartWin").addEventListener("click", resetGame);
+        renderAlbum();
+      } else {
+        overlayCard.innerHTML = `
+          <p class="eyebrow">Sure Bitti</p>
+          <h2>Muzedeki gorev yarim kaldi.</h2>
+          <p>Bu kez daha hizli dusunup ortak mirasi korumaya tekrar calis.</p>
+          <div class="hero-buttons">
+            <button type="button" id="restartLose">Yeniden Basla</button>
+          </div>
+        `;
+        document.getElementById("restartLose").addEventListener("click", resetGame);
+      }
+    }
+
+    function renderAlbum() {
+      albumPanel.classList.remove("hidden");
+      albumPanel.innerHTML = `
+        <h3>Dijital Muze Albumu</h3>
+        <div class="album-grid">
+          ${game.rescuedArtifacts.map((artifact) => `
+            <article class="album-card">
+              <strong>${artifact.name}</strong>
+              <span>${artifact.description}</span>
+            </article>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function handleSmokeAndHazards(dt) {
+      if (game.stunTimer > 0) {
+        game.stunTimer = Math.max(0, game.stunTimer - dt);
+      }
+
+      if (game.revealArtifactTimer > 0) {
+        game.revealArtifactTimer = Math.max(0, game.revealArtifactTimer - dt);
+      }
+
+      updateSmokeCycle(dt);
+    }
+
+    function updateSmokeCycle(dt) {
+      if (!game.smokeCycle?.enabled) {
+        game.smokeZones = [];
+        return;
+      }
+
+      game.smokeCycle.timer -= dt;
+      if (game.smokeCycle.timer > 0) {
+        return;
+      }
+
+      if (game.smokeCycle.active) {
+        game.smokeCycle.active = false;
+        game.smokeCycle.timer = game.smokeCycle.pauseDuration;
+        game.smokeZones = [];
+        return;
+      }
+
+      const anchors = game.levelConfig.smoke.anchors;
+      let nextIndex = game.smokeCycle.currentIndex;
+
+      if (anchors.length > 1) {
+        while (nextIndex === game.smokeCycle.currentIndex) {
+          nextIndex = Math.floor(Math.random() * anchors.length);
+        }
+      }
+
+      game.smokeCycle.currentIndex = nextIndex;
+      game.smokeCycle.active = true;
+      game.smokeCycle.timer = game.smokeCycle.activeDuration;
+      game.smokeZones = buildSmokeZones(game.levelConfig.smoke, game.smokeCycle);
+    }
+
+    function update(dt) {
+      if (
+        game.screen === "start" ||
+        game.screen === "victory" ||
+        game.screen === "defeat" ||
+        game.screen === "levelComplete"
+      ) {
+        return;
+      }
+
+      game.visualClock += dt;
+      game.lightningTimer -= dt;
+      game.lightningFlash = Math.max(0, game.lightningFlash - dt * 2.8);
+
+      if (game.lightningTimer <= 0) {
+        game.lightningFlash = 0.9;
+        game.lightningTimer = 3.5 + Math.random() * 4.5;
+      }
+
+      movePlayer(dt);
+      if (game.levelConfig.mode !== "gallery") {
+        game.timeLeft = Math.max(0, game.timeLeft - dt);
+        collectNearbyExtinguishers();
+        updateFallingRocks(dt);
+        handleSmokeAndHazards(dt);
+      }
+
+      if (game.player.carrying) {
+        const carryOffsetX = game.player.facing < 0 ? 18 : -18;
+        game.player.carrying.x = game.player.x + carryOffsetX;
+        game.player.carrying.y = game.player.y - 24;
+      }
+
+      if (game.messageTimer > 0) {
+        game.messageTimer = Math.max(0, game.messageTimer - dt);
+        if (game.messageTimer === 0) {
+          hideMessage();
+        }
+      }
+
+      if (game.levelConfig.mode !== "gallery" && game.timeLeft <= 0) {
+        finishGame(false);
+      }
+
+      updateHud();
+    }
+
+    function updateHud() {
+      scoreLabel.textContent = String(game.score);
+      timerLabel.textContent = game.levelConfig?.mode === "gallery" ? "--" : Math.ceil(game.timeLeft).toString();
+      if (game.screen === "start") {
+        stageLabel.textContent = "Hazirlik";
+      } else if (game.screen === "levelComplete") {
+        stageLabel.textContent = `${game.levelNumber}. Bolum Tamam`;
+      } else {
+        stageLabel.textContent =
+          game.levelConfig?.mode === "gallery"
+            ? `${game.levelNumber}. Bolum / Sergi`
+            :
+          game.stage === 1
+            ? `${game.levelNumber}. Bolum / Yangin`
+            : game.stage === 2
+              ? `${game.levelNumber}. Bolum / Eser`
+              : stageLabel.textContent;
+      }
+
+      let progress = 0;
+
+      if (game.levelConfig?.mode === "gallery") {
+        progressLabel.textContent = "Final Sergi";
+        progress = 100;
+      } else if (game.stage === 1) {
+        const extinguishedCount = game.fires.filter((fire) => !fire.active).length;
+        progressLabel.textContent = "Yangin Ilerlemesi";
+        progress = Math.round((extinguishedCount / game.fires.length) * 100);
+      } else {
+        const deliveredCount = game.artifacts.filter((artifact) => artifact.delivered).length;
+        progressLabel.textContent = "Eser Ilerlemesi";
+        progress = Math.round((deliveredCount / game.artifacts.length) * 100);
+      }
+
+      progressText.textContent = `%${progress}`;
+      progressFill.style.width = `${progress}%`;
+    }
+
+    function drawMuseumBackground() {
+      const backgroundSprite = backgroundSprites[game.levelConfig?.backgroundKey || "level1"];
+
+      if (backgroundSprite && backgroundSprite.complete && backgroundSprite.naturalWidth > 0) {
+        ctx.drawImage(backgroundSprite, 0, 0, WIDTH, HEIGHT);
+      } else {
+        const fallback = ctx.createLinearGradient(0, 0, 0, HEIGHT);
+        fallback.addColorStop(0, "#e8d5b7");
+        fallback.addColorStop(1, "#7e563b");
+        ctx.fillStyle = fallback;
+        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+      }
+
+      if (game.levelConfig?.mode !== "gallery") {
+        ctx.fillStyle = "rgba(120, 228, 171, 0.24)";
+        fillRoundedRect(SAFE_ZONE.x, SAFE_ZONE.y, SAFE_ZONE.w, SAFE_ZONE.h, 20);
+        drawSafeZoneHouse();
+      }
+
+      ctx.fillStyle = "rgba(57, 31, 18, 0.18)";
+      ctx.fillRect(0, 0, WIDTH, 10);
+      ctx.fillRect(0, HEIGHT - 10, WIDTH, 10);
+
+      if (game.lightningFlash > 0) {
+        ctx.fillStyle = `rgba(255,255,245,${game.lightningFlash * 0.12})`;
+        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+      }
+    }
+
+    function drawSafeZoneHouse() {
+      const drawW = 82;
+      const drawH = 82;
+      const drawX = SAFE_ZONE.x + (SAFE_ZONE.w - drawW) / 2;
+      const drawY = SAFE_ZONE.y + (SAFE_ZONE.h - drawH) / 2;
+
+      ctx.save();
+      if (safehouseSprite.complete && safehouseSprite.naturalWidth > 0) {
+        ctx.drawImage(safehouseSprite, drawX, drawY, drawW, drawH);
+      } else {
+        ctx.fillStyle = "rgba(255,255,255,0.75)";
+        fillRoundedRect(drawX, drawY, drawW, drawH, 14);
+      }
+      ctx.fillStyle = "#000000";
+      ctx.font = "900 15px Nunito";
+      ctx.textAlign = "center";
+      ctx.fillText("GUVENLI", drawX + drawW / 2, drawY + 24);
+      ctx.fillText("BOLGE", drawX + drawW / 2, drawY + 42);
+      ctx.textAlign = "start";
+      ctx.restore();
+    }
+
+    function drawExtinguishers() {
+      game.extinguishers.forEach((item) => {
+        if (item.collected) {
+          return;
+        }
+        ctx.fillStyle = "rgba(0, 0, 0, 0.22)";
+        ctx.beginPath();
+        ctx.ellipse(item.x, item.y + 18, 13, 6, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#d94f3d";
+        ctx.fillRect(item.x - 10, item.y - 14, 20, 28);
+        ctx.fillStyle = "#ffd4cd";
+        ctx.fillRect(item.x - 5, item.y - 16, 10, 4);
+      });
+    }
+
+    function drawFires() {
+      game.fires.forEach((fire) => {
+        if (!fire.active) {
+          return;
+        }
+        const gradient = ctx.createRadialGradient(fire.x, fire.y, 6, fire.x, fire.y, fire.size);
+        gradient.addColorStop(0, "#ffe39a");
+        gradient.addColorStop(0.5, "#ff8c42");
+        gradient.addColorStop(1, "rgba(217,79,61,0.1)");
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(fire.x, fire.y, fire.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    function drawSmoke() {
+      game.smokeZones.forEach((zone) => {
+        const pulse = 0.92 + Math.sin(game.visualClock * 2.4) * 0.08;
+        const outerGradient = ctx.createRadialGradient(zone.x, zone.y, 12, zone.x, zone.y, zone.r);
+        outerGradient.addColorStop(0, "rgba(36, 40, 46, 0.72)");
+        outerGradient.addColorStop(0.55, "rgba(46, 50, 56, 0.46)");
+        outerGradient.addColorStop(1, "rgba(46, 50, 56, 0.12)");
+        ctx.fillStyle = outerGradient;
+        ctx.beginPath();
+        ctx.arc(zone.x, zone.y, zone.r * pulse, 0, Math.PI * 2);
+        ctx.fill();
+
+        const midGradient = ctx.createRadialGradient(zone.x, zone.y, 8, zone.x, zone.y, zone.r * 0.72);
+        midGradient.addColorStop(0, "rgba(55, 59, 66, 0.78)");
+        midGradient.addColorStop(1, "rgba(55, 59, 66, 0.18)");
+        ctx.fillStyle = midGradient;
+        ctx.beginPath();
+        ctx.arc(zone.x, zone.y, zone.r * 0.72, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    function drawFallingRocks() {
+      game.fallingRocks.forEach((rock) => {
+        ctx.save();
+        ctx.translate(rock.x, rock.y);
+        ctx.rotate(rock.rotation + (game.visualClock * 0.4));
+
+        if (rockSprite.complete && rockSprite.naturalWidth > 0) {
+          const trim = rockSprite.trimRect || {
+            x: 0,
+            y: 0,
+            w: rockSprite.naturalWidth,
+            h: rockSprite.naturalHeight
+          };
+          ctx.drawImage(
+            rockSprite,
+            trim.x,
+            trim.y,
+            trim.w,
+            trim.h,
+            -rock.size / 2,
+            -rock.size / 2,
+            rock.size,
+            rock.size
+          );
+        } else {
+          ctx.fillStyle = "#7c6e62";
+          fillRoundedRect(-rock.size / 2, -rock.size / 2, rock.size, rock.size, 10);
+        }
+
+        ctx.restore();
+      });
+    }
+
+    function drawArtifacts() {
+      game.artifacts.forEach((artifact) => {
+        if (artifact.delivered || (artifact.collected && artifact !== game.player.carrying)) {
+          return;
+        }
+
+        const isHighlighted = game.revealArtifactTimer > 0 && !artifact.delivered && !artifact.collected;
+        ctx.fillStyle = "rgba(0, 0, 0, 0.18)";
+        ctx.beginPath();
+        ctx.ellipse(artifact.x, artifact.y + 22, 24, 8, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (isHighlighted) {
+          ctx.fillStyle = "rgba(243, 189, 75, 0.18)";
+          ctx.beginPath();
+          ctx.arc(artifact.x, artifact.y, artifact.displaySize * 0.68, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        const targetSize = artifact === game.player.carrying ? artifact.carrySize : artifact.displaySize;
+
+        if (!drawSpriteCentered(artifact.sprite, artifact.x, artifact.y, targetSize)) {
+          ctx.fillStyle = isHighlighted ? "#f3bd4b" : "#507255";
+          fillRoundedRect(artifact.x - 18, artifact.y - 14, 36, 28, 9);
+        }
+      });
+    }
+
+    function drawPlayer() {
+      const { x, y, size } = game.player;
+      const sprite = game.hero?.sprite;
+
+      if (sprite && sprite.complete && sprite.naturalWidth > 0) {
+        const bob = game.player.moving ? Math.sin(game.player.walkCycle) * 2.2 : 0;
+        const tilt = game.player.moving ? Math.sin(game.player.walkCycle) * 0.04 : 0;
+        const trim = sprite.trimRect || {
+          x: 0,
+          y: 0,
+          w: sprite.naturalWidth,
+          h: sprite.naturalHeight
+        };
+        const drawH = 78;
+        const drawW = (trim.w / trim.h) * drawH;
+
+        ctx.save();
+        ctx.translate(x, y + bob);
+        if (game.player.facing < 0) {
+          ctx.scale(-1, 1);
+        }
+        ctx.rotate(tilt);
+        ctx.drawImage(
+          sprite,
+          trim.x,
+          trim.y,
+          trim.w,
+          trim.h,
+          -drawW / 2,
+          -drawH + 12,
+          drawW,
+          drawH
+        );
+        ctx.restore();
+      } else {
+        ctx.fillStyle = game.player.color;
+        ctx.beginPath();
+        ctx.arc(x, y, size, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(x - 5, y - 3, 2.6, 0, Math.PI * 2);
+        ctx.arc(x + 5, y - 3, 2.6, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(x, y + 3, 6, 0.1, Math.PI - 0.1);
+        ctx.stroke();
+      }
+
+      if (game.stunTimer > 0) {
+        ctx.fillStyle = "#5f331f";
+        ctx.font = "800 13px Nunito";
+        ctx.fillText("Sersemledi", x - 30, y - 38);
+      }
+    }
+
+    function drawInteractionHint() {
+      if (game.screen !== "stage1" && game.screen !== "stage2") {
+        return;
+      }
+
+      let hint = "";
+      if (game.screen === "gallery" && nearestGalleryArtifact()) {
+        hint = "Bilgi notu icin E";
+      } else if (game.screen === "stage1" && nearestFire() && game.ammo > 0) {
+        hint = "Yangini sondurmek icin Space";
+      } else if (game.screen === "stage1" && game.ammo <= 0) {
+        hint = "Once yangin tupu al";
+      } else if (game.screen === "stage2" && nearestArtifact() && !game.player.carrying) {
+        hint = "Eseri almak icin E";
+      } else if (game.screen === "stage2" && game.player.carrying && isInSafeZone()) {
+        hint = "Teslim etmek icin E";
+      }
+
+      if (!hint) {
+        return;
+      }
+
+      ctx.fillStyle = "rgba(255, 248, 232, 0.94)";
+      ctx.fillRect(660, 24, 270, 44);
+      ctx.fillStyle = "#6e371f";
+      ctx.font = "700 18px Nunito";
+      ctx.fillText(hint, 676, 52);
+    }
+
+    function triggerHeroStart(heroKey) {
+      if (!heroKey) {
+        return;
+      }
+      if (game.screen === "victory" || game.screen === "defeat") {
+        resetGame();
+      }
+      startGame(heroKey);
+    }
+
+    function bindStartButtons() {
+      startOverlay.querySelectorAll("[data-hero]").forEach((button) => {
+        const heroKey = button.dataset.hero;
+        button.onclick = (event) => {
+          event.preventDefault();
+          triggerHeroStart(heroKey);
+        };
+        button.ontouchend = (event) => {
+          event.preventDefault();
+          triggerHeroStart(heroKey);
+        };
+      });
+    }
+
+    function bindHoldControl(button, keyName) {
+      if (!button) {
+        return;
+      }
+
+      const press = (event) => {
+        event.preventDefault();
+        keys[keyName] = true;
+        button.classList.add("is-active");
+      };
+
+      const release = (event) => {
+        if (event) {
+          event.preventDefault();
+        }
+        keys[keyName] = false;
+        button.classList.remove("is-active");
+      };
+
+      button.addEventListener("pointerdown", press);
+      button.addEventListener("pointerup", release);
+      button.addEventListener("pointerleave", release);
+      button.addEventListener("pointercancel", release);
+    }
+
+    function bindTapAction(button, action) {
+      if (!button) {
+        return;
+      }
+      button.addEventListener("pointerdown", (event) => {
+        event.preventDefault();
+        action();
+      });
+    }
+
+    function setupMobileControls() {
+      bindHoldControl(mobileControls.querySelector('[data-control="up"]'), "ArrowUp");
+      bindHoldControl(mobileControls.querySelector('[data-control="down"]'), "ArrowDown");
+      bindHoldControl(mobileControls.querySelector('[data-control="left"]'), "ArrowLeft");
+      bindHoldControl(mobileControls.querySelector('[data-control="right"]'), "ArrowRight");
+
+      bindTapAction(mobileControls.querySelector('[data-control="action-e"]'), handleInteraction);
+      bindTapAction(mobileControls.querySelector('[data-control="action-space"]'), extinguishFire);
+      bindTapAction(mobileControls.querySelector('[data-control="action-r"]'), resetGame);
+    }
+
+    function draw() {
+      drawMuseumBackground();
+      drawSmoke();
+      drawExtinguishers();
+      drawFires();
+      drawFallingRocks();
+      drawArtifacts();
+      if (game.hero) {
+        drawPlayer();
+      }
+      drawInteractionHint();
+    }
+
+    function loop(timestamp) {
+      if (!lastTime) {
+        lastTime = timestamp;
+      }
+      const dt = Math.min((timestamp - lastTime) / 1000, 0.033);
+      lastTime = timestamp;
+
+      update(dt);
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    function handleKeyDown(event) {
+      const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+      if (["w", "a", "s", "d", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(key)) {
+        event.preventDefault();
+      }
+      keys[key] = true;
+
+      if (key === "e") {
+        handleInteraction();
+      }
+
+      if (key === " ") {
+        event.preventDefault();
+        extinguishFire();
+      }
+
+      if (key === "r") {
+        resetGame();
+      }
+    }
+
+    function handleKeyUp(event) {
+      const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+      keys[key] = false;
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    canvas.addEventListener("keydown", handleKeyDown);
+    canvas.addEventListener("keyup", handleKeyUp);
+
+    bindStartButtons();
+    setupMobileControls();
+    galleryReplayButton.addEventListener("click", resetGame);
+    resetGame();
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>
